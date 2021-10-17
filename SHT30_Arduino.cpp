@@ -1,5 +1,6 @@
 #pragma once
 #include <Wire.h>
+#include <LiquidCrystal.h>
 
 #define Addr 0x44   // address is 0x44
 #define B_CONST 237.3
@@ -32,6 +33,10 @@ float calculate(float cTemp, float humidity)
   return erg;
 }
 
+  const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+  LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+  // Initialization of the LCD library
+
 void setup()
 {
   // Initialise I2C communication
@@ -39,6 +44,11 @@ void setup()
   // Initialise serial communication, set baud rate = 9600
   Serial.begin(9600);
   delay(300);
+
+  lcd.begin(16, 4);
+  // define columns and rows
+  lcd.print("start");
+  // Write "start" on the display
 }
 
 void loop() 
@@ -73,7 +83,7 @@ void loop()
   // Convert the data
   float cTemp = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45;
   float humidity = ((((data[3] * 256.0) + data[4]) * 100) / 65535.0);
-  float dewPoint = calculate(cTemp, humidity);
+  float dewpoint = calculate(cTemp, humidity);
 
   // Output data to serial monitor
   Serial.print("humidity : ");
@@ -82,10 +92,26 @@ void loop()
   Serial.print("temperature : ");
   Serial.print(cTemp);
   Serial.println(" C");
-  Serial.print("dewPoint:");
-  Serial.print(dewPoint);
+  Serial.print("dewpoint:");
+  Serial.print(dewpoint);
   Serial.println(" C");
   Serial.println("");
   Serial.println("");
   delay(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("h:");
+  lcd.print(humidity);
+  lcd.print("%");
+
+  lcd.setCursor(0, 1);
+  lcd.print("t:");
+  lcd.print(cTemp);
+  lcd.print("\337C");
+
+  lcd.setCursor(9, 0);
+  lcd.print("d:");
+  lcd.print(dewpoint);
+  lcd.print("\337C");
+
 }
