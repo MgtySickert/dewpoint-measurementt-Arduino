@@ -1,5 +1,37 @@
+#pragma once
+
 #include <Wire.h>
+
 #define Addr 0x44  // address is 0x44
+#define B_CONST 237.3
+#define A_CONST 7.5
+
+float exponent = 0;
+float topright = 0;
+
+void makeExponent(float temp)
+{
+  float up = A_CONST * temp;
+  float down = B_CONST + temp;
+  exponent = up / down;
+}
+ 
+void maketopright(float humidity)
+{
+  float high = pow(10, exponent);
+  float first = humidity / 100;
+  topright = log10((first * 6.1078 * high) / 6.1078);
+}
+
+float calculate(float cTemp, float humidity)
+{
+  makeExponent(cTemp);
+  maketopright(humidity);
+  float above = B_CONST * topright;  // above the fraction line
+  float under = A_CONST - topright;  // under the fraction line
+  float erg = above / under;
+  return erg;
+}
 
 void setup()
 {
